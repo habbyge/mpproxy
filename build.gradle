@@ -1,0 +1,77 @@
+group 'com.lxyx.habbyge'
+version '1.0-SNAPSHOT'
+
+//apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'kotlin'
+
+sourceCompatibility = 1.8
+mainClassName = 'com.lxyx.habbyge.Main'
+
+buildscript {
+    ext.kotlin_version = '1.3.50'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    // gradle sdk
+    api gradleApi() // 使用 'java-gradle-plugin' 插件代替了 
+    // groovy sdk
+    api localGroovy()
+
+    // Android编译的大部分gradle源码，比如上面讲到的TaskManager
+//    implementation "com.android.tools.build:gradle:${rootProject.ext.GRADLE_VERSION}"
+
+    // 这个依赖里其实主要存了transform的依赖，注意，这个依赖不同于上面的gradleApi()
+    /*implementation "com.android.tools.build:gradle-api:${rootProject.ext.GRADLE_VERSION}"*/
+
+    // 支持编译插件
+    api "org.ow2.asm:asm:5.1"
+    api "org.ow2.asm:asm-util:5.1"
+    api "org.ow2.asm:asm-commons:5.1"
+}
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+jar {
+    configurations.runtime.each { // 运行时依赖
+        println("configurations.runtime: ${it.path}")
+    }
+    println('~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~')
+    configurations.compile.each { // 编译期依赖
+        println("configurations.comile: ${it.path}")
+    }
+    println('~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~')
+
+    manifest {
+        attributes 'Main-Class': 'com.lxyx.habbyge.Main' // 指定入口类(包含main())
+    }
+    from {
+        // 添加依赖的打包文件
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+//        configurations.runtime.collect{
+//            zipTree(it)
+//        }
+    }
+}
