@@ -1,6 +1,6 @@
 package com.lxyx.habbyge.proxy;
 
-import javafx.util.Pair;
+import org.gradle.internal.Pair;
 import org.objectweb.asm.*;
 
 import java.io.File;
@@ -139,7 +139,8 @@ public class MpGenClass {
 
         for (Pair<String, String> methodInfo : methodInfos) {
             cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                    methodInfo.getKey(), methodInfo.getValue(), null, null); // todo 暂时不支持exception
+                    methodInfo.getLeft(), methodInfo.getRight(),
+                    null, null); // todo 暂时不支持exception
         }
 
         cw.visitEnd();

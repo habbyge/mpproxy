@@ -2,7 +2,7 @@ package com.lxyx.habbyge;
 
 import com.lxyx.habbyge.proxy.MpGenClass;
 import com.lxyx.habbyge.proxy.ProxyInfo;
-import javafx.util.Pair;
+import org.gradle.internal.Pair;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -36,9 +36,10 @@ public class Main {
 
         //【测试用例】测试通过asm生成动态代理对象
         List<Pair<String, String>> methodInfos = new ArrayList<Pair<String, String>>();
-        methodInfos.add(new Pair<>("foo", "()V"));
-        methodInfos.add(new Pair<>("foo1", "(Ljava/lang/String;)Ljava/lang/String;"));
-        methodInfos.add(new Pair<>("foo2", "(I)Ljava/lang/Integer;"));
+        methodInfos.add(Pair.of("foo", "()V"));
+        methodInfos.add(Pair.of("foo1", "(Ljava/lang/String;)Ljava/lang/String;"));
+        methodInfos.add(Pair.of("foo2", "(I)Ljava/lang/Integer;"));
+
         final ProxyInfo proxyInfo = MpGenClass.getProxy(TestProxy.class, methodInfos, new InvocationHandler() {
 
             @Override
