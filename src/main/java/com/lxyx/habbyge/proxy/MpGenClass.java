@@ -92,6 +92,7 @@ public class MpGenClass {
                 System.out.println("_LXYX_ myClassLoader: class !!");
                 classLoader.setBytes(newBytes);
                 oldObjectClass = classLoader.findClass("com.lxyx.habbyge.TestProxy");
+                classLoader.setBytes(null); // 清理掉当前加载的字节码，避免影响其他的class加载
                 System.out.println("_LXYX_ oldObjectClass: " + oldObjectClass.getName());
                 for (Class<?> _interface_ : oldObjectClass.getInterfaces()) {
                     System.out.println("_LXYX_ oldObjectClass, _interface_: " + _interface_.getName());

@@ -19,6 +19,10 @@ public class MpClassLoader extends ClassLoader {
     // 重写 findClass方法，加载指定文件，这个部分你可以自由发挥
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        return super.defineClass(name, bytes, 0, bytes.length);
+        if (bytes == null) {
+            return super.findClass(name);
+        } else {
+            return super.defineClass(name, bytes, 0, bytes.length);
+        }
     }
 }
