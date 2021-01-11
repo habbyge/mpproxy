@@ -2,10 +2,14 @@ package com.lxyx.habbyge;
 
 import com.lxyx.habbyge.proxy.MpGenClass;
 import com.lxyx.habbyge.proxy.ProxyInfo;
+import com.lxyx.habbyge.test.TestProxy;
+import com.lxyx.habbyge.test.TestProxy2;
 import org.gradle.internal.Pair;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +18,16 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("_LXYX_ Hello, lxyx !!");
 
-        new Main().test4Proxy();
+        Main main = new Main();
+        ProxyInfo proxyInfo = main.getProxyOfTestProxy();
+        main.test4Proxy1(proxyInfo);
+        System.out.println("_LXYX_ Shameless dividing line ~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        main.test4Proxy2(proxyInfo);
     }
 
     private Object mOldObject = null;
 
-    private void test4Proxy() {
+    private ProxyInfo getProxyOfTestProxy() {
         /*TestGenClass.genClass();*/
 
         // 先被ClassLoader加载了，应该放在生成新的该被代理类，并覆盖之后再加载
@@ -40,7 +48,7 @@ public class Main {
         methodInfos.add(Pair.of("foo1", "(Ljava/lang/String;)Ljava/lang/String;"));
         methodInfos.add(Pair.of("foo2", "(I)Ljava/lang/Integer;"));
 
-        final ProxyInfo proxyInfo = MpGenClass.getProxy(TestProxy.class, methodInfos, new InvocationHandler() {
+        return MpGenClass.getProxy(TestProxy.class, methodInfos, new InvocationHandler() {
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -53,7 +61,9 @@ public class Main {
                 return method.invoke(mOldObject, args);
             }
         });
+    }
 
+    private void test4Proxy1(ProxyInfo proxyInfo) {
         if (proxyInfo == null) {
             return;
         }
@@ -87,5 +97,31 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private TestProxy2 testProxy2;
+    private void test4Proxy2(ProxyInfo proxyInfo) {
+        TestProxy testProxy = new TestProxy();
+        testProxy2 = new TestProxy2(testProxy);
+
+        // 旧的
+        testProxy2.test1();
+        testProxy2.test2("I love _LXYX_");
+        testProxy2.test3(10000);
+
+        // 新的代理
+        if (proxyInfo == null) {
+            return;
+        }
+        try {
+            Field field = testProxy2.getClass().getDeclaredField("testProxy");
+            field.setAccessible(true);
+            field.set(testProxy2, proxyInfo.proxy);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        testProxy2.test1();
+        testProxy2.test2("I love _LXYX_");
+        testProxy2.test3(10000);
     }
 }

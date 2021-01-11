@@ -1,5 +1,8 @@
-package com.lxyx.habbyge;
+package com.lxyx.habbyge.test;
 
+/**
+ * 测试用例1
+ */
 // fixme: 这里的例子是：final，一样能够对其进行动态代理劫持
 public final class TestProxy {
 

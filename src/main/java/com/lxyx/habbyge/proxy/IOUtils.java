@@ -1,9 +1,8 @@
 package com.lxyx.habbyge.proxy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.objectweb.asm.Type;
+
+import java.io.*;
 import java.lang.reflect.Method;
 
 public final class IOUtils {
@@ -58,5 +57,64 @@ public final class IOUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * @return 让被代理Class实现interface，并返回新的class的字节码
+     */
+    public static InputStream getStream(Class<?> _class) {
+        String className = Type.getInternalName(_class) + ".class";
+        System.out.println("_LXYX_ _getStream: className: " + className);
+
+        InputStream stream;
+        try {
+            // 取巧的地方，Android的ClassLoader中也存在这个API
+            stream = _class.getClassLoader().getResourceAsStream(className);
+            if (stream == null) {
+                System.err.println("_LXYX_ _getStream: stream == null");
+                return null;
+            }
+            System.out.println("_LXYX_ _getStream: stream: " + stream.getClass().getName());
+            return stream;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean _write2Disk(String classFilePath, byte[] bytes, boolean isNew) {
+        File file = new File(classFilePath);
+
+        if (!isNew) {
+            if (!file.exists()) {
+                System.err.println("_LXYX_ _write2Disk, classFilePath: NOT EXISTS!");
+                return false;
+            }
+            boolean readable = file.setReadable(true);
+            boolean writable = file.setWritable(true);
+            if (!file.canWrite()) {
+                System.err.println("_LXYX_ classFilePath: NO Write Access: " + readable + ", " + writable);
+                return false;
+            }
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(bytes);
+            fos.flush();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 }
